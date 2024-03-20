@@ -25,14 +25,14 @@ st.sidebar.header("ML Model Config")
 
 # Model Options
 model_type = st.sidebar.radio(
-    "Select Task", ['Detection', 'Segmentation'])
+    "Select Task", ['Detection YOLOv8', 'Segmentation'])
 
 confidence = float(st.sidebar.slider(
     "Select Model Confidence", 25, 100, 40)) / 100
 
 # Selecting Detection Or Segmentation
-if model_type == 'Detection':
-    model_path = Path(settings.DETECTION_MODEL)
+if model_type == 'Detection YOLOv8':
+    model_path = Path(settings.DETECTION_MODEL_Y8)
 elif model_type == 'Segmentation':
     model_path = Path(settings.SEGMENTATION_MODEL)
 

@@ -47,7 +47,8 @@ VIDEOS_DICT = {
 
 # ML Model config
 MODEL_DIR = ROOT / 'weights'
-DETECTION_MODEL = MODEL_DIR / 'best_1.pt'
+DETECTION_MODEL_Y8 = MODEL_DIR / 'best_1.pt'
+DETECTION_MODEL_PP = MODEL_DIR / 'best_1.pt'
 # DETECTION_MODEL = MODEL_DIR / 'yolov8n.pt'
 # In case of your custome model comment out the line above and
 # Place your custom model pt file name at the line below 
