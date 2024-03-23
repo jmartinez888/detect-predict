@@ -1,8 +1,13 @@
 from ultralytics import YOLO
+
+from custom_OD_prediction_tools import Custom_Paddle_Detector
+
 import time
 import streamlit as st
 import cv2
 from pytube import YouTube
+
+import numpy as np
 
 import settings
 
@@ -20,6 +25,16 @@ def load_model(model_path):
     model = YOLO(model_path)
     return model
 
+def load_paddle_model(model_path, confidence_threshold):
+    
+    
+    import paddle
+    paddle.enable_static()
+    
+    model = Custom_Paddle_Detector(model_dir=model_path, device='CPU', run_mode='paddle', batch_size=1, threshold=confidence_threshold)
+    
+    return model
+
 
 def display_tracker_options():
     display_tracker = st.radio("Display Tracker", ('Yes', 'No'))
@@ -30,7 +45,7 @@ def display_tracker_options():
     return is_display_tracker, None
 
 
-def _display_detected_frames(conf, model, st_frame, image, is_display_tracking=None, tracker=None):
+def _display_detected_frames(conf, model, model_type, st_frame, image, is_display_tracking=None, tracker=None):
     """
     Display the detected objects on a video frame using the YOLOv8 model.
 
@@ -44,22 +59,36 @@ def _display_detected_frames(conf, model, st_frame, image, is_display_tracking=N
     Returns:
     None
     """
+    print(f"model_type: {model_type}")
+    
+    if model_type == 'Detection YOLOv8':
+        
+        # Resize the image to a standard size
+        # image = cv2.resize(image, (640, int(640*(9/16))))
 
-    # Resize the image to a standard size
-    image = cv2.resize(image, (720, int(720*(9/16))))
+        # Display object tracking, if specified
+        if is_display_tracking:
+            res = model.track(image, conf=conf, persist=True, tracker=tracker)
+        else:
+            # Predict the objects in the image using the YOLOv8 model
+            res = model.predict(image, conf=conf)
 
-    # Display object tracking, if specified
-    if is_display_tracking:
-        res = model.track(image, conf=conf, persist=True, tracker=tracker)
-    else:
-        # Predict the objects in the image using the YOLOv8 model
-        res = model.predict(image, conf=conf)
+        # # Plot the detected objects on the video frame
+        res_plotted = res[0].plot()
+        
+    elif model_type == 'Detection Pico_detl640':
+        
+        print(f"image: {image} | type: {type(image)}")
+        
+        # Convierte la imagen a un arreglo de numpy
+        image = np.array(image)
 
-    # # Plot the detected objects on the video frame
-    res_plotted = res[0].plot()
+        res_plotted, res = model.custom_predict_image(image, return_results=True, return_result_image_plotted=True)
+        
+    
     st_frame.image(res_plotted,
                    caption='Detected Video',
-                   channels="BGR",
+                   channels="RGB",
                    use_column_width=True
                    )
 
@@ -148,7 +177,7 @@ def play_rtsp_stream(conf, model):
             st.sidebar.error("Error loading RTSP stream: " + str(e))
 
 
-def play_webcam(conf, model):
+def play_webcam(conf, model, model_type):
     """
     Plays a webcam stream. Detects Objects in real-time using the YOLOv8 object detection model.
 
@@ -164,6 +193,9 @@ def play_webcam(conf, model):
     """
     source_webcam = settings.WEBCAM_PATH
     is_display_tracker, tracker = display_tracker_options()
+    
+    # res_plotted, res = model.custom_predict_image(uploaded_image, return_results=True, return_result_image_plotted=True)
+    
     if st.sidebar.button('Detectar Objetos'):
         try:
             vid_cap = cv2.VideoCapture(source_webcam)
@@ -171,8 +203,10 @@ def play_webcam(conf, model):
             while (vid_cap.isOpened()):
                 success, image = vid_cap.read()
                 if success:
+                    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
                     _display_detected_frames(conf,
                                              model,
+                                             model_type,
                                              st_frame,
                                              image,
                                              is_display_tracker,
