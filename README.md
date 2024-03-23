@@ -2,11 +2,6 @@
 
 This repository is a comprehensive open-source project that demonstrates the integration of object detection and tracking using the YOLOv8 object detection algorithm and Streamlit, a popular Python web application framework for building interactive web applications. This project provides a user-friendly and customizable interface that can detect and track objects in real-time video streams.
 
-## Demo WebApp
-
-This app is up and running on Streamlit cloud server!!! Thanks 'Streamlit' for the community support for the cloud upload. You can check the demo of this web application on the link below.
-
-[yolov8-streamlit-detection-tracking-webapp](https://codingmantras-yolov8-streamlit-detection-tracking-app-njcqjg.streamlit.app/)
 
 ## Tracking With Object Detection Demo
 
@@ -16,15 +11,15 @@ This app is up and running on Streamlit cloud server!!! Thanks 'Streamlit' for t
 
 ### Home page
 
-<img src="https://github.com/CodingMantras/yolov8-streamlit-detection-tracking/blob/master/assets/pic1.png" >
+<img src="https://github.com/jmartinez888/detect-predict/blob/master/assets/pic1.png" >
 
 ### Page after uploading an image and object detection
 
-<img src="https://github.com/CodingMantras/yolov8-streamlit-detection-tracking/blob/master/assets/pic3.png" >
+<img src="https://github.com/jmartinez888/detect-predict/blob/master/assets/pic3.png" >
 
 ### Segmentation task on image
 
-<img src="https://github.com/CodingMantras/yolov8-streamlit-detection-tracking/blob/master/assets/segmentation.png" >
+<img src="https://github.com/jmartinez888/detect-predict/blob/master/assets/segmentation.png" >
 
 ## Requirements
 
@@ -34,12 +29,13 @@ Streamlit
 
 ```bash
 pip install ultralytics streamlit pytube
+pip install paddlepaddle pyyaml requests urllib3==1.26.6 tqdm opencv-python pycocotools imgaug scikit-learn pandas
 ```
 
 ## Installation
 
-- Clone the repository: git clone <https://github.com/CodingMantras/yolov8-streamlit-detection-tracking.git>
-- Change to the repository directory: `cd yolov8-streamlit-detection-tracking`
+- Clone the repository: git clone <https://github.com/jmartinez888/detect-predict>
+- Change to the repository directory: `cd detect-predict`
 - Create `weights`, `videos`, and `images` directories inside the project.
 - Download the pre-trained YOLOv8 weights from (<https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8n.pt>) and save them to the `weights` directory in the same project.
 
