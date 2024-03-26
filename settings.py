@@ -54,7 +54,11 @@ MODEL2_DIR = ROOT / 'weights' / 'picodet_l_640_coco_lcnet_dataset_violencia_one_
 
 DETECTION_MODEL_PICO_DETL640 = MODEL2_DIR
 
-print(f"DETECTION_MODEL_PICO_DETL640: {DETECTION_MODEL_PICO_DETL640}")
+# ML Model config
+MODEL3_DIR = ROOT / 'weights' / 'rtdetr_r18vd_6x_coco_dataset_violencia_one_COCO_v5_splitted'
+
+DETECTION_MODEL_RTDETR_R18_6X = MODEL3_DIR
+
 
 # DETECTION_MODEL = MODEL_DIR / 'yolov8n.pt'
 # In case of your custome model comment out the line above and
