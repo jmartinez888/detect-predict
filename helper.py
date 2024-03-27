@@ -84,6 +84,15 @@ def _display_detected_frames(conf, model, model_type, st_frame, image, is_displa
         image = np.array(image)
 
         res_plotted, res = model.custom_predict_image(image, return_results=True, return_result_image_plotted=True)
+    
+    elif model_type == 'Detection rtdetr_r18vd_6x':
+        
+        print(f"image: {image} | type: {type(image)}")
+        
+        # Convierte la imagen a un arreglo de numpy
+        image = np.array(image)
+
+        res_plotted, res = model.custom_predict_image(image, return_results=True, return_result_image_plotted=True)
         
     
     st_frame.image(res_plotted,

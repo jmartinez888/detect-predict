@@ -48,7 +48,7 @@ st.sidebar.header("ML Model Config")
 
 # Model Options
 model_type = st.sidebar.radio(
-    "Select Task", ['Detection YOLOv8', 'Detection Pico_detl640', 'Segmentation'])
+    "Select Task", ['Detection YOLOv8', 'Detection Pico_detl640', 'Detection rtdetr_r18vd_6x', 'Segmentation'])
 
 confidence = float(st.sidebar.slider(
     "Select Model Confidence", 25, 100, 40)) / 100
@@ -74,6 +74,15 @@ elif model_type == 'Detection Pico_detl640':
         st.error(f"Unable to load model. Check the specified path: {model_path}")
         st.error(ex)
     
+elif model_type == 'Detection rtdetr_r18vd_6x':
+    model_path = Path(settings.DETECTION_MODEL_RTDETR_R18_6X)
+    
+    # Load Pre-trained ML Model
+    try:
+        model = helper.load_paddle_model(model_path, confidence_threshold=confidence)
+    except Exception as ex:
+        st.error(f"Unable to load model. Check the specified path: {model_path}")
+        st.error(ex)
 
     
 elif model_type == 'Segmentation':
@@ -147,16 +156,13 @@ if source_radio == settings.IMAGE:
                         # st.write(ex)
                         st.write("No image is uploaded yet!")
                     
-                elif model_type == 'Detection Pico_detl640':
+                elif model_type == 'Detection Pico_detl640' or model_type == 'Detection rtdetr_r18vd_6x':
                     
                     # Convierte la imagen a un arreglo de numpy
                     uploaded_image = np.array(uploaded_image)
                     
-                                    
-                                    
                     custom_print(uploaded_image, f"uploaded_image", has_len=False, wanna_exit=False)
                     
-                
                     res_plotted, res = model.custom_predict_image(uploaded_image, return_results=True, return_result_image_plotted=True)
                     
                     # res_plotted = res[0].plot()[:, :, ::-1]
