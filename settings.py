@@ -47,7 +47,9 @@ VIDEOS_DICT = {
 
 # ML Model config
 MODEL_DIR = ROOT / 'weights'
-DETECTION_MODEL_Y8 = MODEL_DIR / 'best_1.pt'
+# DETECTION_MODEL_Y8 = MODEL_DIR / 'best_1.pt'
+
+DETECTION_MODEL_Y8 = MODEL_DIR / 'best_weight_yolov8_full_integer_quant.tflite'
 
 # ML Model config
 MODEL2_DIR = ROOT / 'weights' / 'picodet_l_640_coco_lcnet_dataset_violencia_one_COCO_v5_splitted'
