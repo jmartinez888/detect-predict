@@ -12,6 +12,8 @@ import streamlit as st
 import settings
 import helper
 
+
+
 def custom_print(data, data_name, salto_linea_tipo1=False, salto_linea_tipo2=False, display_data=True, has_len=True, wanna_exit=False):
     if salto_linea_tipo1:
         print(f"")
@@ -29,7 +31,6 @@ def custom_print(data, data_name, salto_linea_tipo1=False, salto_linea_tipo2=Fal
             print(f"{data_name}: | type: {type(data)}")
     if wanna_exit:
         exit()
-
 
 
 # Setting page layout
@@ -99,8 +100,8 @@ if source_radio == settings.IMAGE:
         "Choose an image...", type=("jpg", "jpeg", "png", 'bmp', 'webp'))
 
     col1, col2 = st.columns(2)
-
-    with col1:
+    
+    with col2:
         try:
             if source_img is None:
                 default_image_path = str(settings.DEFAULT_IMAGE)
@@ -115,7 +116,7 @@ if source_radio == settings.IMAGE:
             st.error("Error occurred while opening the image.")
             st.error(ex)
 
-    with col2:
+    with col1:
         if source_img is None:
             default_detected_image_path = str(settings.DEFAULT_DETECT_IMAGE)
             default_detected_image = PIL.Image.open(
@@ -165,6 +166,8 @@ if source_radio == settings.IMAGE:
                     
                     res_plotted, res = model.custom_predict_image(uploaded_image, return_results=True, return_result_image_plotted=True)
                     
+                    
+                    
                     # res_plotted = res[0].plot()[:, :, ::-1]
                     st.image(res_plotted, caption='Detected Image',
                             use_column_width=True)
@@ -175,19 +178,14 @@ if source_radio == settings.IMAGE:
                         # st.write(ex)
                         st.write("No image is uploaded yet!")
 
-
-                    
-                    
                     # res = model.custom_predict_image(uploaded_image, return_results=True)
                                         
-                    
+
 
 elif source_radio == settings.VIDEO:
-    helper.play_stored_video(confidence, model)
+    helper.play_stored_video(confidence, model, model_type)
 
 elif source_radio == settings.WEBCAM:
-    
-    
     
     helper.play_webcam(confidence, model, model_type)
 
