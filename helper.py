@@ -131,6 +131,7 @@ class StreamlitAppPlayStoredVideoAndWebcam:
         self.ypred = []
         self.clases_predichas = []
         self.full_data_updated = []
+        self.contador_evento = 0
 
     def setup_layout(self):
         # st.title("Demo de Streamlit con cámara en tiempo real")
@@ -188,6 +189,7 @@ class StreamlitAppPlayStoredVideoAndWebcam:
                                     self.bool_init_time = False
                                     
                                 self.finalTime = datetime.now()
+                                self.contador_evento += 1
                                 
                                 time_difference_output, minutes_output, self.seconds_output = time_difference(self.initialTime, self.finalTime)
                                 
@@ -195,7 +197,8 @@ class StreamlitAppPlayStoredVideoAndWebcam:
                                     self.clean_all_values()
                                     self.finalTime = datetime.now()
                                     time_difference_output, minutes_output, self.seconds_output = time_difference(self.initialTime, self.finalTime)
-                                
+                                    self.contador_evento = 0
+                                    
                                 for annotation in res:
                                     
                                     x, y, w, h = annotation["bbox"][0], annotation["bbox"][1], annotation["bbox"][2], annotation["bbox"][3]
@@ -212,11 +215,13 @@ class StreamlitAppPlayStoredVideoAndWebcam:
                                     copia_image = self.update_image_with_prediction_plotted(copia_image, (x, y, w, h), class_name, annotation['score'], color)
                                     copia_image = self.update_image_with_time_plotted(copia_image, self.seconds_output)  
                                     
+                                    if self.contador_evento >= 3:
+                                        
+                                        self.play_sound_2(int(0))
+                                    
                                     grafica = self.plot_data(self.xtime, self.ypred, self.clases_predichas)
                                     self.st_grafico.pyplot(grafica)
                                     
-                                    self.play_sound_2(int(self.seconds_output))
-                                                
                                     self.st_frame.image(copia_image, channels="RGB")
                                     
                             else:
@@ -230,13 +235,15 @@ class StreamlitAppPlayStoredVideoAndWebcam:
                             
                             self.clean_all_values()
                             self.finalTime = datetime.now()
+                            self.contador_evento = 0
+                            
                             time_difference_output, minutes_output, self.seconds_output = time_difference(self.initialTime, self.finalTime)
                         
                             custom_print(self.initialTime, f"self.initialTime", has_len=False)
                             custom_print(self.finalTime, f"self.finalTime", has_len=False)
                             custom_print(self.seconds_output, f"self.seconds_output", has_len=False)
                             
-                            self.play_sound_2(int(self.seconds_output))
+                            # self.play_sound_2(int(self.seconds_output))
                             
                             copia_image = self.update_image_with_time_plotted(copia_image, "CEROOOO")
                             
