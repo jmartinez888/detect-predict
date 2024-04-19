@@ -167,7 +167,6 @@ if source_radio == settings.IMAGE:
                     res_plotted, res = model.custom_predict_image(uploaded_image, return_results=True, return_result_image_plotted=True)
                     
                     
-                    
                     # res_plotted = res[0].plot()[:, :, ::-1]
                     st.image(res_plotted, caption='Detected Image',
                             use_column_width=True)
@@ -183,11 +182,11 @@ if source_radio == settings.IMAGE:
 
 
 elif source_radio == settings.VIDEO:
-    helper.play_stored_video(confidence, model, model_type)
+    helper.play_stored_video(confidence, model, model_type, "video")
 
 elif source_radio == settings.WEBCAM:
     
-    helper.play_webcam(confidence, model, model_type)
+    helper.play_webcam(confidence, model, model_type, "real_time")
 
 elif source_radio == settings.RTSP:
     helper.play_rtsp_stream(confidence, model)
