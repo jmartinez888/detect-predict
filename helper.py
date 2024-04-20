@@ -31,6 +31,14 @@ from PyQt5.QtCore import QTimer, QThread, pyqtSignal, QMutex, QMutexLocker
 import matplotlib.pyplot as plt
 import winsound
 import pandas as pd
+import vlc
+import pygame
+from collections import Counter
+from joblib import Parallel, delayed
+import os
+import pickle
+import subprocess
+import matplotlib.image as mpimg
 
 bool_start_init_time = False
 
@@ -44,6 +52,7 @@ seconds_output = 0
 
 
 estado_violencia = False
+
 
 
 def format_timedelta(delta):
@@ -102,6 +111,7 @@ class SoundPlayer(threading.Thread):
         print(f"Stopping thread... 1")
         self.should_stop = True # terminate() ==> función que finaliza el proceso
 
+
 class StreamlitAppPlayStoredVideoAndWebcam:
     def __init__(self):
         self.st_frame, self.st_grafico, self.st_texto, self.st_button = self.setup_layout()
@@ -113,6 +123,7 @@ class StreamlitAppPlayStoredVideoAndWebcam:
         self.model_type = None
         self.is_display_tracker = None
         self.tracker = None
+        self.source = None
         self.class_names = ["patada", "trompon", "forcegeo", "estrangulamiento"]
         self.COLORS = [(0, 255, 255), (255, 255, 0), (0, 255, 0), (255, 0, 0)]
         self.classes_data_list = [[0.0 for _ in range(30)], [0.0 for _ in range(30)], [0.0 for _ in range(30)], [0.0 for _ in range(30)]]
@@ -132,6 +143,12 @@ class StreamlitAppPlayStoredVideoAndWebcam:
         self.clases_predichas = []
         self.full_data_updated = []
         self.contador_evento = 0
+        self.reproducir_alerta = False
+        self.grafica = None
+        
+    # Agrega esta función al principio de tu clase StreamlitAppPlayStoredVideoAndWebcam
+    def update_graph_thread(self, grafica):
+        self.st_grafico.pyplot(grafica)
 
     def setup_layout(self):
         # st.title("Demo de Streamlit con cámara en tiempo real")
@@ -147,6 +164,13 @@ class StreamlitAppPlayStoredVideoAndWebcam:
 
     def run(self):
         if self.st_button:
+            
+            limite_eventos = 3
+            limite_segundos = 5.0
+            
+            # limite_eventos = 6
+            # limite_segundos = 10.0
+            
             
             try:
                 
@@ -165,11 +189,16 @@ class StreamlitAppPlayStoredVideoAndWebcam:
                     
                     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
                     
+                    if self.source == "video":
+                        image = cv2.resize(image, (720, int(720*(9/16))))
+                    else:
+                        image = image
+                    
                     copia_image = image.copy()
                     
                     if success:
                         
-                        if self.seconds_output < 5.0:
+                        if self.seconds_output < limite_segundos:
                                 
                             res_plotted, res = self._display_detected_frames(self.conf,
                                                     self.model,
@@ -193,7 +222,7 @@ class StreamlitAppPlayStoredVideoAndWebcam:
                                 
                                 time_difference_output, minutes_output, self.seconds_output = time_difference(self.initialTime, self.finalTime)
                                 
-                                if self.seconds_output >= 5.0:
+                                if self.seconds_output >= limite_segundos:
                                     self.clean_all_values()
                                     self.finalTime = datetime.now()
                                     time_difference_output, minutes_output, self.seconds_output = time_difference(self.initialTime, self.finalTime)
@@ -215,15 +244,41 @@ class StreamlitAppPlayStoredVideoAndWebcam:
                                     copia_image = self.update_image_with_prediction_plotted(copia_image, (x, y, w, h), class_name, annotation['score'], color)
                                     copia_image = self.update_image_with_time_plotted(copia_image, self.seconds_output)  
                                     
-                                    if self.contador_evento >= 3:
+                                    if self.contador_evento >= limite_eventos and self.reproducir_alerta == False:
                                         
-                                        self.play_sound_2(int(0))
+                                        # self.play_sound_2(int(0))
+                                        
+                                                                                
+                                        # thread = threading.Thread(target=self.play_sound_2(int(0)))
+                                        # thread = threading.Thread(target=self.play_sound)
+                                        # thread.start()
+                                        
+                                        # Comando que quieres ejecutar
+                                        command = "python pitido_v1.py"
+
+                                        # Ejecutar el comando en segundo plano
+                                        subprocess.Popen(command, shell=True)
+
+                                        # Imprimir la salida
+                                        # self.play_sound()
+                                        
+                                        self.reproducir_alerta = True
                                     
-                                    grafica = self.plot_data(self.xtime, self.ypred, self.clases_predichas)
+                                    # grafica = self.plot_data(self.xtime, self.ypred, self.clases_predichas)
+                                    grafica = self.plot_data_light(self.xtime, self.ypred, self.clases_predichas)
+                                    # grafica = self.plot_data_parallel(self.xtime, self.ypred, self.clases_predichas)
+                                    
+                                    # Mostrar la imagen en self.st_grafico.pyplot
                                     self.st_grafico.pyplot(grafica)
                                     
-                                    self.st_frame.image(copia_image, channels="RGB")
                                     
+                                    # self.st_grafico.pyplot(grafica)
+                                    
+                                    # thread = threading.Thread(target=self.update_graph_thread, args=(grafica,))
+                                    # thread.start()
+                                    
+                                    self.st_frame.image(copia_image, channels="RGB")
+                                            
                             else:
                                 
                                 copia_image = self.update_image_with_time_plotted(copia_image, "NO HAY PREDICCION")
@@ -251,6 +306,9 @@ class StreamlitAppPlayStoredVideoAndWebcam:
                         
                         if self.full_data_updated:
                             
+                            # Llama a la función update_graph_thread en un nuevo hilo
+                            
+                                                    
                             custom_print(self.full_data_updated, f"self.full_data_updated", has_len=True)
                             
                             df = pd.DataFrame(self.full_data_updated, columns=["Evento", "Tiempo(s)", "Predicción (%)"])
@@ -305,6 +363,57 @@ class StreamlitAppPlayStoredVideoAndWebcam:
         plt.tight_layout()
         return plt
     
+    def plot_data_light(self, xtime, ypred, clases_predichas):
+        # Crear un mapeo de colores único para cada clase
+        class_counts = Counter(clases_predichas)
+        num_classes = len(class_counts)
+        color_map = plt.cm.get_cmap('tab20', num_classes)
+        class_color_map = {clase: color_map(i) for i, clase in enumerate(class_counts)}
+
+        # Crear el gráfico de dispersión con colores por clase
+        plt.figure(figsize=(10, 6))
+        for x, y, clase in zip(xtime, ypred, clases_predichas):
+            plt.scatter(x, y, color=class_color_map[clase], label=clase)
+            plt.text(x, y, clase, fontsize=12, ha='left', va='bottom')
+        plt.legend(loc='center left', bbox_to_anchor=(1, 0.5), title='Clases')
+        plt.xlabel('Tiempo')
+        plt.ylabel('Puntuación de Predicción')
+        plt.title('Predicciones a lo Largo del Tiempo')
+        plt.grid(True, linestyle='--', alpha=0.7)
+        plt.tight_layout()
+        return plt
+    
+    
+    def plot_data_parallel(self, xtime, ypred, clases_predichas):
+        # Crear un mapeo de colores único para cada clase
+        class_counts = Counter(clases_predichas)
+        num_classes = len(class_counts)
+        color_map = plt.cm.get_cmap('tab20', num_classes)
+        class_color_map = {clase: color_map(i) for i, clase in enumerate(class_counts)}
+
+        # Función para trazar un punto
+        def plot_point(x, y, clase):
+            plt.scatter(x, y, color=class_color_map[clase], label=clase)
+            plt.text(x, y, clase, fontsize=12, ha='left', va='bottom')
+
+
+        total_nucleos_cpu = os.cpu_count()
+        # Paralelizar la generación de puntos
+        Parallel(n_jobs=total_nucleos_cpu, backend='threading', verbose=0)(
+            delayed(plot_point)(x, y, clase) for x, y, clase in zip(xtime, ypred, clases_predichas)
+        )
+
+        # Configuración adicional del gráfico
+        plt.figure(figsize=(10, 6))
+        plt.legend(loc='center left', bbox_to_anchor=(1, 0.5), title='Clases')
+        plt.xlabel('Tiempo')
+        plt.ylabel('Puntuación de Predicción')
+        plt.title('Predicciones a lo Largo del Tiempo')
+        plt.grid(True, linestyle='--', alpha=0.7)
+        plt.tight_layout()
+        return plt
+    
+    
     def clean_all_values(self):
         # global initialTime, finalTime, bool_init_time
         self.initialTime = datetime.now()
@@ -313,6 +422,7 @@ class StreamlitAppPlayStoredVideoAndWebcam:
         self.ypred = []
         self.clases_predichas = []
         self.seconds_output = 0.0
+        self.reproducir_alerta = False
         print("######### CLEANING VALUES... #########")
     
     def play_sound_2(self, seconds_output):
@@ -328,6 +438,12 @@ class StreamlitAppPlayStoredVideoAndWebcam:
         print("SOUNDING... (",str(seconds_output), ")")
         # is_sound_playing = False
     
+    
+    def play_sound():
+        pygame.mixer.init()
+        pygame.mixer.music.load('audios/danger_alarm_80s_4seconds.mp3')
+        pygame.mixer.music.play()
+                
     def _display_detected_frames(self, conf, model, model_type, image, is_display_tracking=None, tracker=None):
         """
         Display the detected objects on a video frame using the YOLOv8 model.
@@ -712,7 +828,7 @@ def play_rtsp_stream(conf, model):
             st.sidebar.error("Error loading RTSP stream: " + str(e))
 
 
-def play_webcam(conf, model, model_type):
+def play_webcam(conf, model, model_type, source):
     """
     Plays a webcam stream. Detects Objects in real-time using the YOLOv8 object detection model.
 
@@ -738,11 +854,12 @@ def play_webcam(conf, model, model_type):
     PlayWebcam_thread.model_type = model_type
     PlayWebcam_thread.is_display_tracker = is_display_tracker
     PlayWebcam_thread.tracker = tracker
+    PlayWebcam_thread.source = source
     
     # Iniciar el hilo de la cámara
     PlayWebcam_thread.run()
     
-def play_stored_video(conf, model, model_type):
+def play_stored_video(conf, model, model_type, source):
     """
     Plays a stored video file. Tracks and detects objects in real-time using the YOLOv8 object detection model.
 
@@ -785,6 +902,8 @@ def play_stored_video(conf, model, model_type):
     PlayStoredVideo_thread.model_type = model_type
     PlayStoredVideo_thread.is_display_tracker = is_display_tracker
     PlayStoredVideo_thread.tracker = tracker
+    PlayStoredVideo_thread.source = source
+    
     
     # Iniciar el hilo de la cámara
     PlayStoredVideo_thread.run()
