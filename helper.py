@@ -31,7 +31,6 @@ from PyQt5.QtCore import QTimer, QThread, pyqtSignal, QMutex, QMutexLocker
 import matplotlib.pyplot as plt
 # import winsound
 import pandas as pd
-import vlc
 import pygame
 from collections import Counter
 from joblib import Parallel, delayed
