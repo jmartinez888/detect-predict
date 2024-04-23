@@ -13,7 +13,7 @@ import settings
 
 import threading
 from datetime import datetime
-import winsound
+# import winsound
 
 
 # Charts
@@ -29,7 +29,7 @@ from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import QTimer, QThread, pyqtSignal, QMutex, QMutexLocker
 
 import matplotlib.pyplot as plt
-import winsound
+# import winsound
 import pandas as pd
 import vlc
 import pygame
@@ -102,7 +102,7 @@ class SoundPlayer(threading.Thread):
         while not self.should_stop:
             
             if self.seconds_output != -1:
-                    
+                import winsound
                 winsound.Beep(frequency=self.array[self.seconds_output], duration=500)
                 print("SOUNDING... (", str(self.seconds_output), ")")
         self.is_sound_playing = False
