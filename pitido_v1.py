@@ -1,6 +1,5 @@
 import threading
 from playsound import playsound
-import vlc
 
 def play_sound():
     playsound('audios/danger_alarm_80s_2seconds.mp3')
