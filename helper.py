@@ -157,15 +157,18 @@ class StreamlitAppPlayStoredVideoAndWebcam:
 
         st_texto = st.empty()
         
-        st_button = st.sidebar.button("Detect Objects")
+        st_button = st.sidebar.button("Detectar violencia")
         
         return st_frame, st_grafico, st_texto, st_button
 
     def run(self):
         if self.st_button:
             
-            limite_eventos = 3
-            limite_segundos = 5.0
+            # limite_eventos = 3
+            # limite_segundos = 5.0
+            
+            limite_eventos = 6
+            limite_segundos = 9.0
             
             # limite_eventos = 6
             # limite_segundos = 10.0
@@ -466,7 +469,7 @@ class StreamlitAppPlayStoredVideoAndWebcam:
         
         x_min, y_min, x_max, y_max =  None, None, None, None
         
-        if model_type == 'Detection YOLOv8':
+        if model_type == 'YOLOv8n':
             
             # Resize the image to a standard size
             # image = cv2.resize(image, (640, int(640*(9/16))))
@@ -513,7 +516,7 @@ class StreamlitAppPlayStoredVideoAndWebcam:
                         # Agrega coco_annotation a la lista de anotaciones
                         coco_results.append(coco_annotation)
             
-        elif model_type == 'Detection Pico_detl640' or model_type == 'Detection rtdetr_r18vd_6x':
+        elif model_type == 'Pico_detl640' or model_type == 'rtdetr_r18vd_6x':
             
             print(f"image: {image} | type: {type(image)}")
             
@@ -663,7 +666,7 @@ def _display_detected_frames(conf, model, model_type, image, is_display_tracking
 
     coco_results = []
     
-    if model_type == 'Detection YOLOv8':
+    if model_type == 'YOLOv8n':
         
         # Resize the image to a standard size
         # image = cv2.resize(image, (640, int(640*(9/16))))
@@ -711,7 +714,7 @@ def _display_detected_frames(conf, model, model_type, image, is_display_tracking
                  
                     
         
-    elif model_type == 'Detection Pico_detl640':
+    elif model_type == 'Pico_detl640':
         
         print(f"image: {image} | type: {type(image)}")
         
@@ -720,7 +723,7 @@ def _display_detected_frames(conf, model, model_type, image, is_display_tracking
 
         res_plotted, res = model.custom_predict_image(image, return_results=True, return_result_image_plotted=True)
     
-    elif model_type == 'Detection rtdetr_r18vd_6x':
+    elif model_type == 'rtdetr_r18vd_6x':
         
         print(f"image: {image} | type: {type(image)}")
         
@@ -731,101 +734,6 @@ def _display_detected_frames(conf, model, model_type, image, is_display_tracking
         
     
     return res_plotted, coco_results
-
-
-def play_youtube_video(conf, model):
-    """
-    Plays a webcam stream. Detects Objects in real-time using the YOLOv8 object detection model.
-
-    Parameters:
-        conf: Confidence of YOLOv8 model.
-        model: An instance of the `YOLOv8` class containing the YOLOv8 model.
-
-    Returns:
-        None
-
-    Raises:
-        None
-    """
-    source_youtube = st.sidebar.text_input("YouTube Video url")
-
-    is_display_tracker, tracker = display_tracker_options()
-
-    if st.sidebar.button('Detect Objects'):
-        try:
-            yt = YouTube(source_youtube)
-            stream = yt.streams.filter(file_extension="mp4", res=720).first()
-            vid_cap = cv2.VideoCapture(stream.url)
-
-            st_frame = st.empty()
-            while (vid_cap.isOpened()):
-                success, image = vid_cap.read()
-                if success:
-                    res_plotted, res = _display_detected_frames(conf,
-                                             model,
-                                             image,
-                                             is_display_tracker,
-                                             tracker,
-                                             )
-                    
-                    st_frame.image(res_plotted,
-                        caption='Detected Video',
-                        channels="RGB",
-                        use_column_width=True
-                        )
-                else:
-                    vid_cap.release()
-                    break
-        except Exception as e:
-            st.sidebar.error("Error loading video: " + str(e))
-
-
-def play_rtsp_stream(conf, model):
-    """
-    Plays an rtsp stream. Detects Objects in real-time using the YOLOv8 object detection model.
-
-    Parameters:
-        conf: Confidence of YOLOv8 model.
-        model: An instance of the `YOLOv8` class containing the YOLOv8 model.
-
-    Returns:
-        None
-
-    Raises:
-        None
-    """
-    source_rtsp = st.sidebar.text_input("rtsp stream url:")
-    st.sidebar.caption('Example URL: rtsp://admin:12345@192.168.1.210:554/Streaming/Channels/101')
-    is_display_tracker, tracker = display_tracker_options()
-    if st.sidebar.button('Detect Objects'):
-        try:
-            vid_cap = cv2.VideoCapture(source_rtsp)
-            st_frame = st.empty()
-            while (vid_cap.isOpened()):
-                success, image = vid_cap.read()
-                if success:
-                    res_plotted, res = _display_detected_frames(conf,
-                                             model,
-                                             image,
-                                             is_display_tracker,
-                                             tracker
-                                             )
-                    st_frame.image(res_plotted,
-                        caption='Detected Video',
-                        channels="RGB",
-                        use_column_width=True
-                        )
-                    
-                else:
-                    vid_cap.release()
-                    # vid_cap = cv2.VideoCapture(source_rtsp)
-                    # time.sleep(0.1)
-                    # continue
-                    break
-        except Exception as e:
-            vid_cap.release()
-            st.sidebar.error("Error loading RTSP stream: " + str(e))
-
 
 def play_webcam(conf, model, model_type, source):
     """
@@ -842,8 +750,6 @@ def play_webcam(conf, model, model_type, source):
         None
     """
     source_webcam = settings.WEBCAM_PATH
-    is_display_tracker, tracker = display_tracker_options()
-    
     # res_plotted, res = model.custom_predict_image(uploaded_image, return_results=True, return_result_image_plotted=True)
     
     PlayWebcam_thread = StreamlitAppPlayStoredVideoAndWebcam()
@@ -851,8 +757,8 @@ def play_webcam(conf, model, model_type, source):
     PlayWebcam_thread.conf = conf
     PlayWebcam_thread.model = model
     PlayWebcam_thread.model_type = model_type
-    PlayWebcam_thread.is_display_tracker = is_display_tracker
-    PlayWebcam_thread.tracker = tracker
+    PlayWebcam_thread.is_display_tracker = True
+    PlayWebcam_thread.tracker = "bytetrack.yaml"
     PlayWebcam_thread.source = source
     
     # Iniciar el hilo de la cámara
@@ -879,19 +785,12 @@ def play_stored_video(conf, model, model_type, source):
     print(f"empezando a predecir video...")
     
     source_vid = st.sidebar.selectbox(
-        "Choose a video...", settings.VIDEOS_DICT.keys())
+        "Elige un video:", settings.VIDEOS_DICT.keys())
     
 
     # class_names = ["patada", "trompon", "forcegeo", "estrangulamiento"]
     
     # COLORS = [(0, 255, 255), (255, 255, 0), (0, 255, 0), (255, 0, 0)]
-    
-
-    is_display_tracker, tracker = display_tracker_options()
-
-    with open(settings.VIDEOS_DICT.get(source_vid), 'rb') as video_file:
-        video_bytes = video_file.read()
-        
 
     PlayStoredVideo_thread = StreamlitAppPlayStoredVideoAndWebcam()
     
@@ -899,9 +798,10 @@ def play_stored_video(conf, model, model_type, source):
     PlayStoredVideo_thread.conf = conf
     PlayStoredVideo_thread.model = model
     PlayStoredVideo_thread.model_type = model_type
-    PlayStoredVideo_thread.is_display_tracker = is_display_tracker
-    PlayStoredVideo_thread.tracker = tracker
+    PlayStoredVideo_thread.is_display_tracker = True
+    PlayStoredVideo_thread.tracker = "bytetrack.yaml"
     PlayStoredVideo_thread.source = source
+    
     
     
     # Iniciar el hilo de la cámara

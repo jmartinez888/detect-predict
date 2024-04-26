@@ -15,13 +15,10 @@ if root_path not in sys.path:
 ROOT = root_path.relative_to(Path.cwd())
 
 # Sources
-IMAGE = 'Image'
 VIDEO = 'Video'
 WEBCAM = 'Webcam'
-RTSP = 'RTSP'
-YOUTUBE = 'YouTube'
 
-SOURCES_LIST = [IMAGE, VIDEO, WEBCAM, RTSP, YOUTUBE]
+SOURCES_LIST = [VIDEO, WEBCAM]
 
 # Images config
 IMAGES_DIR = ROOT / 'images'
@@ -70,7 +67,6 @@ DETECTION_MODEL_RTDETR_R18_6X = MODEL3_DIR
 # Place your custom model pt file name at the line below 
 # DETECTION_MODEL = MODEL_DIR / 'my_detection_model.pt'
 
-SEGMENTATION_MODEL = MODEL_DIR / 'yolov8n-seg.pt'
 
 # Webcam
 WEBCAM_PATH = 0
