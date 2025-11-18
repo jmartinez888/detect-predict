@@ -44,7 +44,7 @@ pip install pygame
 
 ## Usage
 
-- Run the app with the following command: `streamlit run app.py`
+- Run the app with the following command: `streamlit run app_v2.py`
 - The app should open in a new browser window.
 
 ### ML Model Config
