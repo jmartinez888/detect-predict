@@ -23,13 +23,16 @@ This repository is a comprehensive open-source project that demonstrates the int
 
 ## Requirements
 
-Python 3.6+
+Python 3.6+ (3.8)
 YOLOv8
 Streamlit
 
 ```bash
 pip install ultralytics streamlit pytube
 pip install paddlepaddle pyyaml requests urllib3==1.26.6 tqdm opencv-python pycocotools imgaug scikit-learn pandas
+pip install streamlit-echarts
+pip install PyQt5
+pip install pygame
 ```
 
 ## Installation
