@@ -13,6 +13,10 @@ import helper
 from PIL import Image, UnidentifiedImageError
 import os
 import requests
+import warnings
+
+# Suppress specific warnings
+warnings.filterwarnings("ignore", message="No ccache found")
 
 # Función para cargar imagen desde archivo
 def load_image_from_file(file_path):
@@ -24,7 +28,7 @@ def load_image_from_file(file_path):
         return None
 
 # Ruta del logo de la institución académica
-logo_path = "png_logo_unap.png"
+logo_path = "images/logo_unfv.png"
 
 # Ruta de la segunda imagen
 second_image_path = "ejemplo_1_detection_violencia.png"
@@ -35,7 +39,7 @@ img_second = load_image_from_file(second_image_path)
 
 # Setting page layout
 st.set_page_config(
-    page_title="Detección de violencia usando algoritmos de Aprendizaje Profundo",
+    page_title="RECONOCIMIENTO DE ACCIONES DE VIOLENCIA CON INTELIGENCIA ARTIFICIAL",
     page_icon=img_logo if img_logo else "🧠",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -46,9 +50,12 @@ st.markdown(
     """
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
-    body {
-        font-family: 'Roboto', sans-serif;
-        background-color: #f0f2f6;
+    .stApp {
+        background: linear-gradient(to right, #141e30, #243b55);
+        color: white;
+    }
+    h1, h2, h3, h4, h5, h6, p, div, span, label {
+        color: white !important;
     }
     </style>
     """,
@@ -62,51 +69,25 @@ with col1:
         st.image(img_logo, width=200)
 
 with col2:
-    st.title("Detección de violencia usando algoritmos de Aprendizaje Profundo")
+    st.title("RECONOCIMIENTO DE ACCIONES DE VIOLENCIA CON INTELIGENCIA ARTIFICIAL")
 
-# Nuevo row con dos columnas para la descripción del proyecto y la segunda imagen
-col3, col4 = st.columns([4, 2])
-with col3:
-    st.markdown(
-        """
-        ## 📋 Descripción del Proyecto
+# Banner Image
+banner_path = "images/banner_v2.png"
+try:
+    banner_img = Image.open(banner_path)
+    st.image(banner_img, use_container_width=True)
+except Exception as e:
+    st.error(f"Error loading banner image: {e}")
 
-        El proyecto "Detección de Violencia usando Algoritmos de Aprendizaje Profundo" tiene como objetivo desarrollar una aplicación web avanzada que utilice técnicas de inteligencia artificial para identificar automáticamente actos de violencia en vídeos, ya sea en tiempo real o mediante la carga de archivos de video pregrabados. Este sistema está diseñado para mejorar la seguridad pública y proporcionar herramientas eficaces para la vigilancia y prevención de incidentes violentos en diversos entornos.
-        """
-    )
-
-with col4:
-    if img_second:
-        st.image(img_second, width=500)
-
-# Descripción extendida del proyecto en la Página Principal
+# Simplified Description
 st.markdown(
     """
-    ### 🎯 Objetivos del Proyecto
-
-    1. **Desarrollar un Sistema de Detección de Violencia:** Implementar una aplicación web que emplee algoritmos de aprendizaje profundo, específicamente el YOLOv8n, para analizar y detectar actos violentos en secuencias de video.
-    2. **Procesamiento en Tiempo Real y Almacenado:** Permitir a los usuarios cargar videos o utilizar transmisiones en vivo para la detección de violencia.
-    3. **Interfaz de Usuario Intuitiva:** Proporcionar una plataforma fácil de usar donde los resultados de la detección se presenten de manera clara y precisa.
-
-    ### 🛠️ Metodología
-
-    El sistema se basa en el uso de redes neuronales convolucionales (CNNs) que han demostrado ser altamente efectivas en la detección de patrones visuales complejos. El modelo YOLOv8n, conocido por su capacidad para realizar detecciones rápidas y precisas, se entrenará y ajustará utilizando grandes conjuntos de datos etiquetados con instancias de comportamientos violentos. La confianza del modelo se ajustará para equilibrar la precisión y la sensibilidad de las detecciones.
-
-    ### 🌐 Aplicaciones
-
-    Este sistema tiene múltiples aplicaciones prácticas:
-    - **Seguridad Pública:** Monitoreo de espacios públicos para identificar y responder rápidamente a incidentes violentos.
-    - **Instituciones Educativas:** Vigilancia en escuelas y universidades para prevenir y manejar situaciones de violencia.
-    - **Lugares de Trabajo:** Implementación en entornos laborales para garantizar la seguridad de los empleados.
-    - **Hogares:** Uso en sistemas de seguridad doméstica para proteger a los residentes.
-
-    ### 📈 Resultados Esperados
-
-    Se espera que la aplicación proporcione:
-    - **Detección Precisa:** Identificación confiable de comportamientos violentos con un alto nivel de precisión.
-    - **Notificaciones en Tiempo Real:** Alertas instantáneas a los usuarios cuando se detecte violencia en tiempo real.
-    - **Informes Detallados:** Resúmenes de las detecciones, incluyendo los momentos exactos y la naturaleza de las actividades violentas identificadas.
-    """
+    <div style="text-align: center; padding: 10px;">
+        <h3>Proyecto de Doctorado</h3>
+        <p style="font-size: 18px;">Sistema de Inteligencia Artificial para la detección de violencia en tiempo real.</p>
+    </div>
+    """,
+    unsafe_allow_html=True
 )
 
 # Sidebar
@@ -175,19 +156,25 @@ st.markdown(
     """
     <style>
     .footer {
-        font-size: 14px;
+        font-size: 16px;
+        font-weight: bold;
         position: fixed;
         left: 0;
         bottom: 0;
         width: 100%;
-        background-color: #f0f2f6;
-        color: black;
+        background-color: #a56317;
+        color: white;
         text-align: center;
-        padding: 10px;
+        padding: 15px;
+        z-index: 100;
+    }
+    .footer a {
+        color: white;
+        text-decoration: underline;
     }
     </style>
     <div class="footer">
-        © 2024 <a href="https://ctivitae.concytec.gob.pe/appDirectorioCTI/VerDatosInvestigador.do?id_investigador=31125" target="_blank">García Díaz José Edgar</a>. Todos los derechos reservados.
+        <p style="margin: 0;">Universidad Nacional Federico Villarreal - Proyecto de Doctorado / ©2024 <a href="https://ctivitae.concytec.gob.pe/appDirectorioCTI/VerDatosInvestigador.do?id_investigador=31125" target="_blank">García Díaz José Edgar</a>. Todos los derechos reservados.</p>
     </div>
     """,
     unsafe_allow_html=True

@@ -256,13 +256,8 @@ class StreamlitAppPlayStoredVideoAndWebcam:
                                         # thread.start()
                                         
                                         # Comando que quieres ejecutar
-                                        command = "python pitido_v1.py"
-
-                                        # Ejecutar el comando en segundo plano
-                                        subprocess.Popen(command, shell=True)
-
-                                        # Imprimir la salida
-                                        # self.play_sound()
+                                        # Reproducir sonido directamente con pygame
+                                        self.play_sound()
                                         
                                         self.reproducir_alerta = True
                                     
@@ -441,10 +436,14 @@ class StreamlitAppPlayStoredVideoAndWebcam:
         # is_sound_playing = False
     
     
-    def play_sound():
-        pygame.mixer.init()
-        pygame.mixer.music.load('audios/danger_alarm_80s_4seconds.mp3')
-        pygame.mixer.music.play()
+    def play_sound(self):
+        if not pygame.mixer.get_init():
+            pygame.mixer.init()
+        try:
+            pygame.mixer.music.load('audios/danger_alarm_80s_2seconds.mp3')
+            pygame.mixer.music.play()
+        except Exception as e:
+            print(f"Error playing sound: {e}")
                 
     def _display_detected_frames(self, conf, model, model_type, image, is_display_tracking=None, tracker=None):
         """
